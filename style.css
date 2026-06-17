@@ -463,6 +463,125 @@ body {
   animation-delay: 0.3s;
 }
 
+/* --- History Card --- */
+.card--history {
+  border-color: rgba(139, 92, 246, 0.15);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.02),
+    var(--clr-surface)
+  );
+  margin-top: var(--space-sm);
+  animation-delay: 0.1s;
+}
+
+.history__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.history__title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.btn-clear {
+  background: transparent;
+  border: none;
+  color: var(--clr-text-dim);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--duration) var(--ease), background var(--duration) var(--ease);
+}
+
+.btn-clear:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.history__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: var(--space-xs);
+}
+
+.history__list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.history__list::-webkit-scrollbar-thumb {
+  background: var(--clr-border);
+  border-radius: 99px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: transform var(--duration) var(--ease),
+              background var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+  width: 100%;
+}
+
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--clr-border-focus);
+  transform: translateY(-1px);
+}
+
+.history-item__left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-item__shape {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--clr-accent-light);
+}
+
+.history-item__inputs {
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
+}
+
+.history-item__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.history-item__result {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--clr-text);
+}
+
 /* --- Animations --- */
 @keyframes fade-in-up {
   from {

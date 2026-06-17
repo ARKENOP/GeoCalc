@@ -78,12 +78,20 @@
   const resultsCard = document.getElementById('results-card');
   const resultsBadge = document.getElementById('results-badge');
   const resultsGrid = document.getElementById('results-grid');
+  const historyCard = document.getElementById('history-card');
+  const btnClearHistory = document.getElementById('btn-clear-history');
+  const historyList = document.getElementById('history-list');
 
   let currentShape = null;
+  let history = [];
 
   // ── Event Listeners ────────────────────────────────────────────────
   selectEl.addEventListener('change', onShapeChange);
   btnCalculate.addEventListener('click', onCalculate);
+  btnClearHistory.addEventListener('click', clearHistory);
+
+  // Initialisation de l'historique
+  initHistory();
 
   /**
    * Handles shape selection: renders the appropriate input fields.
@@ -196,6 +204,9 @@
     // Calculate
     const result = currentShape.calculate(values);
 
+    // Save to history
+    saveCalculation(selectEl.value, values, result);
+
     // Display results
     showResults(currentShape.name, result);
   }
@@ -256,5 +267,119 @@
       minimumFractionDigits: 0,
       maximumFractionDigits: 4,
     });
+  }
+
+  /**
+   * Initializes history from localStorage
+   */
+  function initHistory() {
+    const saved = localStorage.getItem('geocalc_history');
+    if (saved) {
+      try {
+        history = JSON.parse(saved);
+        renderHistory();
+      } catch (e) {
+        history = [];
+      }
+    }
+  }
+
+  /**
+   * Saves a calculation run to history and localStorage
+   * @param {string} shapeKey - The shape key
+   * @param {object} inputs - The input values
+   * @param {object} result - Calculated perimeter and area
+   */
+  function saveCalculation(shapeKey, inputs, result) {
+    const item = {
+      id: Date.now(),
+      shapeKey,
+      inputs,
+      result
+    };
+    
+    // Add to top of list, keep max 5 items
+    history.unshift(item);
+    if (history.length > 5) {
+      history.pop();
+    }
+    
+    localStorage.setItem('geocalc_history', JSON.stringify(history));
+    renderHistory();
+  }
+
+  /**
+   * Clears all history items
+   */
+  function clearHistory() {
+    history = [];
+    localStorage.removeItem('geocalc_history');
+    renderHistory();
+  }
+
+  /**
+   * Renders the history list in the DOM
+   */
+  function renderHistory() {
+    if (history.length === 0) {
+      historyCard.classList.add('hidden');
+      return;
+    }
+
+    historyList.innerHTML = '';
+    historyCard.classList.remove('hidden');
+
+    history.forEach((item) => {
+      const shape = SHAPES[item.shapeKey];
+      if (!shape) return;
+
+      // Create readable description of inputs
+      const inputDesc = Object.entries(item.inputs)
+        .map(([id, val]) => {
+          const inputDef = shape.inputs.find((inp) => inp.id === id);
+          const label = inputDef ? inputDef.label : id;
+          return `${label}: ${val}`;
+        })
+        .join(', ');
+
+      const div = document.createElement('button');
+      div.className = 'history-item';
+      div.type = 'button';
+      div.setAttribute('aria-label', `Recharger le calcul pour ${shape.name}`);
+      
+      div.innerHTML = `
+        <div class="history-item__left">
+          <span class="history-item__shape">${shape.name}</span>
+          <span class="history-item__inputs">${inputDesc}</span>
+        </div>
+        <div class="history-item__right">
+          <span class="history-item__result">P: ${formatNumber(item.result.perimetre)}</span>
+          <span class="history-item__result">A: ${formatNumber(item.result.aire)}</span>
+        </div>
+      `;
+
+      div.addEventListener('click', () => loadCalculation(item));
+      historyList.appendChild(div);
+    });
+  }
+
+  /**
+   * Loads a historic calculation back into the inputs and shows the results card.
+   * @param {object} item - The history item
+   */
+  function loadCalculation(item) {
+    selectEl.value = item.shapeKey;
+    onShapeChange();
+
+    // Fill the dynamically generated inputs
+    Object.entries(item.inputs).forEach(([id, val]) => {
+      const input = document.getElementById(`input-${id}`);
+      if (input) {
+        input.value = val;
+      }
+    });
+
+    updateButtonState();
+    showResults(SHAPES[item.shapeKey].name, item.result);
   }
 })();
